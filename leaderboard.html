@@ -140,20 +140,20 @@ body {
 // ─────────────────────────────────────────────
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyGU0SgTRcagxKkIdzJxl3ZcQ-Xvf4EQ3QMSHstsxPcWY5xgdOD-8Q_i9H8yG1rUiX9/exec';
 
-// List of puzzles (month label → filename on GitHub Pages)
+// List of puzzles — year indicates when each puzzle goes live
 const PUZZLES = [
-  { label: 'January',   file: 'january-word-search.html' },
-  { label: 'February',  file: 'february-word-search.html' },
-  { label: 'March',     file: 'march-word-search.html' },
-  { label: 'April',     file: 'april-word-search.html' },
-  { label: 'May',       file: 'may-word-search.html' },
-  { label: 'June',      file: 'june-word-search.html' },
-  { label: 'July',      file: 'july-word-search.html' },
-  { label: 'August',    file: 'august-word-search.html' },
-  { label: 'September', file: 'september-word-search.html' },
-  { label: 'October',   file: 'october-word-search.html' },
-  { label: 'November',  file: 'november-word-search.html' },
-  { label: 'December',  file: 'december-word-search.html' },
+  { label: 'January',   file: 'january-word-search.html',   year: 2027 },
+  { label: 'February',  file: 'february-word-search.html',  year: 2027 },
+  { label: 'March',     file: 'march-word-search.html',     year: 2027 },
+  { label: 'April',     file: 'april-word-search.html',     year: 2027 },
+  { label: 'May',       file: 'may-word-search.html',       year: 2026 },
+  { label: 'June',      file: 'june-word-search.html',      year: 2026 },
+  { label: 'July',      file: 'july-word-search.html',      year: 2026 },
+  { label: 'August',    file: 'august-word-search.html',    year: 2026 },
+  { label: 'September', file: 'september-word-search.html', year: 2026 },
+  { label: 'October',   file: 'october-word-search.html',   year: 2026 },
+  { label: 'November',  file: 'november-word-search.html',  year: 2026 },
+  { label: 'December',  file: 'december-word-search.html',  year: 2026 },
 ];
 // ─────────────────────────────────────────────
 
@@ -173,14 +173,22 @@ const PUZZLES = [
   }
 })();
 
-// Puzzle links
+// Puzzle links — only show months up to and including the current month
 (function() {
   const container = document.getElementById('puzzleLinks');
+  const now = new Date();
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   PUZZLES.forEach(p => {
+    const puzzleDate = new Date(p.year, monthNames.indexOf(p.label), 1);
+    const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    if (puzzleDate > currentMonthStart) return; // hide future months
     const a = document.createElement('a');
     a.className = 'puzzle-link';
     a.href = p.file;
     a.textContent = p.label;
+    if (p.label === monthNames[now.getMonth()] && p.year === now.getFullYear()) {
+      a.textContent = p.label + ' ⭐';
+    }
     container.appendChild(a);
   });
 })();
