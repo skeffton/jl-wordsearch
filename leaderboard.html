@@ -191,7 +191,7 @@ let activeMonth = null;
 function loadData() {
   document.getElementById('lbContent').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
 
-  if (APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbyGU0SgTRcagxKkIdzJxl3ZcQ-Xvf4EQ3QMSHstsxPcWY5xgdOD-8Q_i9H8yG1rUiX9/exec') {
+  if (false) {
     renderDemo();
     return;
   }
@@ -211,7 +211,11 @@ function loadData() {
 
 function buildTabs() {
   const months = [...new Set(allData.map(s => s.month))].sort();
-  if (!activeMonth && months.length) activeMonth = months[months.length - 1];
+  if (!activeMonth) {
+    const now = new Date();
+    const currentMonth = now.toLocaleString('en-US', { month: 'long' }) + ' ' + now.getFullYear();
+    activeMonth = months.includes(currentMonth) ? currentMonth : (months[months.length - 1] || null);
+  }
 
   const container = document.getElementById('monthTabs');
   container.innerHTML = '';
