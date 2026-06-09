@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Word Search Leaderboard 🏆</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Nunito', sans-serif;
+  min-height: 100vh;
+  background: #FFF9F0;
+  display: flex; flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem;
+}
+.bg-shapes { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.shape { position: absolute; opacity: 0.10; animation: float linear infinite; }
+@keyframes float {
+  0%   { transform: translateY(0) rotate(0deg); }
+  50%  { transform: translateY(-20px) rotate(180deg); }
+  100% { transform: translateY(0) rotate(360deg); }
+}
+.card {
+  position: relative; z-index: 1; background: #fff;
+  border-radius: 28px;
+  box-shadow: 6px 6px 0px #FCD34D, 0 12px 48px rgba(0,0,0,0.09);
+  padding: 2rem 1.75rem; width: 100%; max-width: 680px;
+  border: 3px solid #1a1a1a; margin-bottom: 1.5rem;
+}
+.lb-header { text-align: center; margin-bottom: 1.5rem; }
+.lb-badge {
+  display: inline-block; background: #FBBF24; color: #fff;
+  font-family: 'Fredoka One', cursive; font-size: 13px;
+  letter-spacing: 0.06em; padding: 4px 16px; border-radius: 20px;
+  margin-bottom: 10px; border: 2px solid #1a1a1a; box-shadow: 2px 2px 0 #1a1a1a;
+}
+.lb-title { font-family: 'Fredoka One', cursive; font-size: 32px; color: #1a1a1a; margin-bottom: 4px; }
+.lb-title .t1 { color: #FBBF24; }
+.lb-title .t2 { color: #7C3AED; }
+.lb-sub { font-size: 13px; color: #999; font-weight: 600; }
+
+/* Month tabs */
+.month-tabs {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1.5rem; justify-content: center;
+}
+.month-tab {
+  font-family: 'Fredoka One', cursive; font-size: 13px;
+  padding: 6px 16px; border-radius: 20px; border: 2px solid #1a1a1a;
+  cursor: pointer; background: #F7F3FF; color: #7C3AED;
+  transition: background 0.15s, transform 0.1s; box-shadow: 2px 2px 0 #1a1a1a;
+}
+.month-tab:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 #1a1a1a; }
+.month-tab.active { background: #7C3AED; color: #fff; }
+
+/* Leaderboard table */
+.lb-month-title {
+  font-family: 'Fredoka One', cursive; font-size: 20px; color: #1a1a1a;
+  margin-bottom: 12px; text-align: center;
+}
+.lb-empty {
+  text-align: center; color: #bbb; font-size: 14px; font-weight: 700;
+  padding: 2rem; border: 2px dashed #E0D8FF; border-radius: 14px;
+}
+.lb-table { width: 100%; border-collapse: collapse; }
+.lb-table th {
+  font-family: 'Fredoka One', cursive; font-size: 12px; color: #bbb;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  padding: 8px 12px; text-align: left; border-bottom: 2px solid #F0EBFF;
+}
+.lb-table td { padding: 10px 12px; border-bottom: 1px solid #F7F3FF; }
+.lb-row { transition: background 0.1s; }
+.lb-row:hover { background: #FFFBF0; }
+.lb-row:last-child td { border-bottom: none; }
+.rank { font-family: 'Fredoka One', cursive; font-size: 20px; text-align: center; width: 48px; }
+.rank-1 { color: #F59E0B; }
+.rank-2 { color: #9CA3AF; }
+.rank-3 { color: #92400E; }
+.rank-other { color: #ccc; font-size: 14px; }
+.player-name { font-weight: 800; font-size: 15px; color: #1a1a1a; }
+.player-time {
+  font-family: 'Fredoka One', cursive; font-size: 18px; color: #7C3AED;
+  background: #F0EBFF; border-radius: 8px; padding: 2px 10px; display: inline-block;
+}
+.player-date { font-size: 11px; color: #bbb; font-weight: 600; }
+
+/* Puzzle links */
+.puzzle-links { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 1.5rem; justify-content: center; }
+.puzzle-link {
+  font-family: 'Fredoka One', cursive; font-size: 13px;
+  padding: 6px 16px; border-radius: 20px; border: 2px solid #1a1a1a;
+  background: #FBBF24; color: #fff; text-decoration: none;
+  box-shadow: 2px 2px 0 #1a1a1a; transition: transform 0.1s, box-shadow 0.1s;
+}
+.puzzle-link:hover { transform: translate(-1px,-1px); box-shadow: 3px 3px 0 #1a1a1a; }
+.puzzle-link:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 #1a1a1a; }
+
+.loading { text-align: center; padding: 2rem; }
+.spinner {
+  display: inline-block; width: 32px; height: 32px;
+  border: 4px solid #F0EBFF; border-top-color: #7C3AED;
+  border-radius: 50%; animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.refresh-btn {
+  font-family: 'Fredoka One', cursive; font-size: 13px;
+  padding: 6px 16px; border-radius: 20px; border: 2px solid #1a1a1a;
+  background: #F7F3FF; color: #7C3AED; cursor: pointer;
+  box-shadow: 2px 2px 0 #1a1a1a; margin-top: 12px; display: inline-block;
+}
+</style>
+</head>
+<body>
+<div class="bg-shapes" id="bgShapes"></div>
+
+<div class="card">
+  <div class="lb-header">
+    <div class="lb-badge">🏆 Firm-Wide Standings</div>
+    <div class="lb-title"><span class="t1">Word Search</span> <span class="t2">Leaderboard</span></div>
+    <div class="lb-sub">Fastest fingers at the firm — updated in real time</div>
+  </div>
+
+  <div class="month-tabs" id="monthTabs"></div>
+  <div id="lbContent"><div class="loading"><div class="spinner"></div></div></div>
+  <div style="text-align:center"><button class="refresh-btn" onclick="loadData()">↻ Refresh</button></div>
+</div>
+
+<div class="card" style="max-width:680px">
+  <div style="text-align:center; margin-bottom:1rem">
+    <div style="font-family:'Fredoka One',cursive; font-size:18px; color:#1a1a1a">Play This Month's Puzzle</div>
+    <div style="font-size:12px; color:#999; font-weight:600; margin-top:4px">Click to open — your time will be tracked!</div>
+  </div>
+  <div class="puzzle-links" id="puzzleLinks"></div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// CONFIGURATION — same URL as in your word search files
+// ─────────────────────────────────────────────
+const APPS_SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+
+// List of puzzles (month label → filename on GitHub Pages)
+const PUZZLES = [
+  { label: 'January',   file: 'january-word-search.html' },
+  { label: 'February',  file: 'february-word-search.html' },
+  { label: 'March',     file: 'march-word-search.html' },
+  { label: 'April',     file: 'april-word-search.html' },
+  { label: 'May',       file: 'may-word-search.html' },
+  { label: 'June',      file: 'june-word-search.html' },
+  { label: 'July',      file: 'july-word-search.html' },
+  { label: 'August',    file: 'august-word-search.html' },
+  { label: 'September', file: 'september-word-search.html' },
+  { label: 'October',   file: 'october-word-search.html' },
+  { label: 'November',  file: 'november-word-search.html' },
+  { label: 'December',  file: 'december-word-search.html' },
+];
+// ─────────────────────────────────────────────
+
+// Background shapes
+(function() {
+  const colors = ['#FBBF24','#60A5FA','#A78BFA','#F472B6','#34D399'];
+  const bg = document.getElementById('bgShapes');
+  for (let i = 0; i < 18; i++) {
+    const el = document.createElement('div');
+    el.className = 'shape';
+    const c = colors[i % colors.length], s = 28 + Math.random() * 44;
+    el.innerHTML = `<svg width="${s}" height="${s}" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16" fill="${c}"/></svg>`;
+    el.style.left = (Math.random()*100)+'vw'; el.style.top = (Math.random()*100)+'vh';
+    el.style.animationDuration = (8+Math.random()*8)+'s';
+    el.style.animationDelay = (-Math.random()*8)+'s';
+    bg.appendChild(el);
+  }
+})();
+
+// Puzzle links
+(function() {
+  const container = document.getElementById('puzzleLinks');
+  PUZZLES.forEach(p => {
+    const a = document.createElement('a');
+    a.className = 'puzzle-link';
+    a.href = p.file;
+    a.textContent = p.label;
+    container.appendChild(a);
+  });
+})();
+
+let allData = [];
+let activeMonth = null;
+
+function loadData() {
+  document.getElementById('lbContent').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+  if (APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+    renderDemo();
+    return;
+  }
+
+  fetch(APPS_SCRIPT_URL + '?action=leaderboard')
+    .then(r => r.json())
+    .then(data => {
+      allData = data.scores || [];
+      buildTabs();
+      renderMonth(activeMonth);
+    })
+    .catch(() => {
+      document.getElementById('lbContent').innerHTML =
+        '<div class="lb-empty">⚠️ Could not load scores. Check your Apps Script URL.</div>';
+    });
+}
+
+function buildTabs() {
+  const months = [...new Set(allData.map(s => s.month))].sort();
+  if (!activeMonth && months.length) activeMonth = months[months.length - 1];
+
+  const container = document.getElementById('monthTabs');
+  container.innerHTML = '';
+  months.forEach(m => {
+    const btn = document.createElement('button');
+    btn.className = 'month-tab' + (m === activeMonth ? ' active' : '');
+    btn.textContent = m;
+    btn.onclick = () => { activeMonth = m; buildTabs(); renderMonth(m); };
+    container.appendChild(btn);
+  });
+}
+
+function renderMonth(month) {
+  const content = document.getElementById('lbContent');
+  const scores = allData
+    .filter(s => s.month === month)
+    .sort((a, b) => a.seconds - b.seconds)
+    .slice(0, 20);
+
+  if (!scores.length) {
+    content.innerHTML = '<div class="lb-empty">No scores yet for ' + (month||'this month') + ' — be the first! 🎉</div>';
+    return;
+  }
+
+  const rankEmoji = ['🥇','🥈','🥉'];
+  let html = '<div class="lb-month-title">🏆 ' + month + '</div>';
+  html += '<table class="lb-table"><thead><tr><th>Rank</th><th>Name</th><th>Time</th><th>Date</th></tr></thead><tbody>';
+  scores.forEach((s, i) => {
+    const rankClass = i < 3 ? 'rank-' + (i+1) : 'rank-other';
+    const rankLabel = i < 3 ? rankEmoji[i] : '#' + (i+1);
+    const date = s.timestamp ? new Date(s.timestamp).toLocaleDateString('en-US', {month:'short', day:'numeric'}) : '';
+    html += `<tr class="lb-row">
+      <td class="rank ${rankClass}">${rankLabel}</td>
+      <td><div class="player-name">${escapeHtml(s.name)}</div></td>
+      <td><span class="player-time">${s.time || formatTime(s.seconds)}</span></td>
+      <td class="player-date">${date}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  content.innerHTML = html;
+}
+
+// Demo mode (shown when Apps Script URL not set yet)
+function renderDemo() {
+  const demoData = [
+    { name: 'Steph K.', seconds: 187, month: 'July 2026' },
+    { name: 'Alex M.', seconds: 204, month: 'July 2026' },
+    { name: 'Jordan T.', seconds: 231, month: 'July 2026' },
+    { name: 'Casey R.', seconds: 258, month: 'July 2026' },
+    { name: 'Sam P.', seconds: 312, month: 'July 2026' },
+  ];
+  allData = demoData;
+  activeMonth = 'July 2026';
+  buildTabs();
+  renderMonth('July 2026');
+  document.getElementById('lbContent').innerHTML =
+    '<div style="text-align:center; font-size:12px; color:#FBBF24; font-weight:700; background:#FFFBF0; border:2px dashed #FBBF24; border-radius:10px; padding:8px; margin-bottom:12px">⚙️ Demo mode — update APPS_SCRIPT_URL to show real scores</div>'
+    + document.getElementById('lbContent').innerHTML;
+}
+
+function formatTime(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return m + ':' + String(sec).padStart(2, '0');
+}
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+loadData();
+</script>
+</body>
+</html>
