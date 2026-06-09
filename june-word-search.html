@@ -214,7 +214,7 @@ body {
 // ─────────────────────────────────────────────
 // CONFIGURATION — update these two values!
 // ─────────────────────────────────────────────
-const APPS_SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyGU0SgTRcagxKkIdzJxl3ZcQ-Xvf4EQ3QMSHstsxPcWY5xgdOD-8Q_i9H8yG1rUiX9/exec';
 const PUZZLE_MONTH    = 'June 2026';
 // ─────────────────────────────────────────────
 
@@ -450,7 +450,7 @@ function submitScore() {
     document.getElementById('modal-status').className = 'modal-status error';
     return;
   }
-  if (APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+  if (APPS_SCRIPT_URL === 'https://script.google.com/macros/s/AKfycbyGU0SgTRcagxKkIdzJxl3ZcQ-Xvf4EQ3QMSHstsxPcWY5xgdOD-8Q_i9H8yG1rUiX9/exec') {
     document.getElementById('modal-status').textContent = '⚙️ Score tracking not yet configured — check setup guide.';
     document.getElementById('modal-status').className = 'modal-status error';
     return;
